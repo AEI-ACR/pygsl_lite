@@ -16,7 +16,7 @@ As a result, the installation process is significantly streamlined.
 
 **For a complete GSL experience, it is recommended to use**  `pygsl <https://github.com/pygsl/pygsl>`_
 
-**All credit for GSL functionality is due to original pygsl authors/maintainers**. See `here <https://github.com/pygsl/pygsl/#thanks>`_  , `here <https://github.com/pygsl/pygsl#maintainers>`_  and in `CREDITS.rst. <https://github.com/pygsl/pygsl/blob/main/CREDITS.rst>`_
+**All credit for GSL functionality is due to original pygsl authors/maintainers**. See `thanks <https://github.com/pygsl/pygsl/#thanks>`_  , `maintainers <https://github.com/pygsl/pygsl#maintainers>`_  and in `CREDITS.rst. <https://github.com/pygsl/pygsl/blob/main/CREDITS.rst>`_
 
 
 Installation instructions
