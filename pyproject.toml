@@ -15,7 +15,7 @@
     dynamic = ["version"]
 
 [project.urls]
-    homepage = "https://github.com/pygsl_lite/pygsl_lite"
+    homepage = "https://github.com/SergeiOssokine/pygsl_lite"
 
 
 [tool.setuptools_scm]
