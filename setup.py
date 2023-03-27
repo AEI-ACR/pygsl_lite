@@ -58,13 +58,6 @@ import os
 
 pygsl_litedir = os.path.dirname("__name__")
 
-# Get the version information
-versionfile = open(os.path.join(pygsl_litedir, "pygsl_lite", "_version.py"))
-versiontext = versionfile.read()
-exec(versiontext)
-versionfile.close()
-del versionfile
-del versiontext
 
 # Make sure that we use the new one ...
 gsldist_path = os.path.join(pygsl_litedir, "gsl_dist")
