@@ -6,7 +6,7 @@
 [project]
     name = "pygsl_lite"
     description = "Minimal GNU Scientific Library Interface"
-    license = { text = "GPL-3.0-or-later" }
+    license = { text = "GPL-2.0-or-later" }
     authors = [{ name = 'Sergei Ossokine' }]
     readme = "README.rst"
     requires-python = ">=3.8"
