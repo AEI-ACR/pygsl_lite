@@ -6,13 +6,23 @@
 [project]
     name = "pygsl_lite"
     description = "Minimal GNU Scientific Library Interface"
-    license = { text = "GPL-2.0-or-later" }
+    license = { text = "GPL-3.0-or-later" }
     authors = [{ name = 'Sergei Ossokine' }]
     readme = "README.rst"
     requires-python = ">=3.8"
     dependencies = ["numpy>=1.23.0"]
     # dynamic properties set by tools:
     dynamic = ["version"]
+    classifiers = [
+		"Development Status :: 4 - Beta",
+		"Intended Audience :: Scientists",
+		"Natural Language :: English",
+		"Programming Language :: Python",
+		"Programming Language :: Python :: 3",
+		"Programming Language :: Python :: 3.8",
+		"Programming Language :: Python :: 3.9",
+		"Programming Language :: Python :: 3.10",
+	]
 
 [project.urls]
     homepage = "https://github.com/SergeiOssokine/pygsl_lite"
