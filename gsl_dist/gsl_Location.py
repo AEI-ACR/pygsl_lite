@@ -110,7 +110,7 @@ class _gsl_Location_gsl_config(_gsl_Location):
 			
 		self.prefix         = self.get_gsl_info('--prefix').strip()
 		self.cflags         = self.get_gsl_info('--cflags').strip()
-		self.libs           = self.get_gsl_info('--libs-wihtout-cblas').strip()
+		self.libs           = self.get_gsl_info('--libs-without-cblas').strip()
 		self.config_version = self.get_gsl_info('--version')
 		self.version        = self._split_version(self.config_version.strip())[:2]
 		
