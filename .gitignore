@@ -1,0 +1,4 @@
+.tox
+build
+_version.py
+pygsl_lite.egg-info

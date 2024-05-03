@@ -16,8 +16,13 @@
 
 
 [project.urls]
-    homepage = "https://github.com/SergeiOssokine/pygsl_lite"
-
+    homepage = "https://github.com/AEI-ACR/pygsl_lite"
 
 [tool.setuptools_scm]
     write_to = "pygsl_lite/_version.py"
+
+[tool.pytest.ini_options]
+    minversion = "6.0"
+    testpaths = [
+        "test",
+    ]

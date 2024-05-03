@@ -16,7 +16,6 @@ import os.path
 import re
 import string
 import types
-import imp
 from sys import argv,version_info
 
 from gsl_Location import gsl_Location
@@ -108,12 +107,7 @@ class gsl_Extension(Extension):
 	    # test if Numeric module is available
 	    if define_macros is None:
 		    define_macros=[]
-	    try:
-		    imp.find_module("Numeric")
-		    define_macros = define_macros + [("NUMERIC",1),]
-	    except ImportError:	    
-		    define_macros = define_macros + [("NUMERIC",0), ]
-
+	    define_macros = define_macros + [("NUMERIC",0), ]
 	    if undef_macros == None:
 		    undef_macros = []
 	    if 'NDEBUG' not in undef_macros:
