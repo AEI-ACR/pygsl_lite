@@ -1,16 +1,22 @@
 [build-system]
-    requires = ["setuptools", "setuptools_scm[toml]>=3.4.3", "wheel", "numpy"]
+    requires = [
+        "setuptools",
+        "setuptools_scm[toml]>=3.4.3",
+        "wheel",
+        "numpy",
+        "swig",
+    ]
     build-backend = "setuptools.build_meta"
 
 
 [project]
-    name = "pygsl_lite"
-    description = "Minimal GNU Scientific Library Interface"
-    license = { text = "GPL-2.0-or-later" }
-    authors = [{ name = 'Sergei Ossokine' }]
-    readme = "README.rst"
+    name            = "pygsl_lite"
+    description     = "Minimal GNU Scientific Library Interface"
+    license         = { text = "GPL-2.0-or-later" }
+    authors         = [{ name = 'Sergei Ossokine' }]
+    readme          = "README.rst"
     requires-python = ">=3.8"
-    dependencies = ["numpy>=1.23.0"]
+    dependencies    = ["numpy>=1.23.0"]
     # dynamic properties set by tools:
     dynamic = ["version"]
 
@@ -23,6 +29,4 @@
 
 [tool.pytest.ini_options]
     minversion = "6.0"
-    testpaths = [
-        "test",
-    ]
+    testpaths  = ["test"]
