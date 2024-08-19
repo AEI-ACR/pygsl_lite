@@ -98,20 +98,20 @@ else:
 try:
     Int =  _numobj.Int
 except  AttributeError:
-    # For numpy 1.0
-    Int = _numobj.int_
+    # For numpy
+    Int = _numobj.int64
 
 try:
     Float = _numobj.Float
 except  AttributeError:
-    # For numpy 1.0
-    Float = _numobj.float_
+    # For numpy
+    Float = _numobj.float64
 
 try:
     Complex = _numobj.Complex
 except  AttributeError:
-    # For numpy 1.0
-    Complex = _numobj.complex_
+    # For numpy
+    Complex = _numobj.complex128
 
 try:
     ArrayType = _numobj.ArrayType

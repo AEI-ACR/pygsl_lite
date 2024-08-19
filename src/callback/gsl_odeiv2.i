@@ -100,7 +100,7 @@ struct _pygsl_lite_odeiv2_steppers_require_jacobian{
 	int requires_jacobian;
 };
 
-static int _pygsl_lite_odeiv2_check_step_jacobian(const pygsl_lite_odeiv2_step *step, const pygsl_lite_odeiv2_system *sys)
+static int _pygsl_lite_odeiv2_check_step_jacobian(const pygsl_lite_odeiv2_step *step, const gsl_odeiv2_system *dydt)
 {
 
 	int line = __LINE__, status = GSL_EFAILED;
@@ -149,7 +149,7 @@ static int _pygsl_lite_odeiv2_check_step_jacobian(const pygsl_lite_odeiv2_step *
 		/*
 		 * so this function requires an jacobian ....
 		 */
-		if(sys->dydt.jacobian){
+		if(dydt->jacobian){
 			/* one found ... goood */
 			DEBUG_MESS(2, "Stepper %s  requires jacobian, one found!",
 				   gsl_odeiv2_step_name(step));
@@ -299,7 +299,7 @@ typedef struct{
 	*/
 
 	PyObject *apply(double t, double h, PyObject * y_o, PyObject *dydt_in_o, PyObject *dydt_out_o,
-			pygsl_lite_odeiv2_system * dydt)
+			pygsl_lite_odeiv2_system * sys)
 	{
 
 		PyObject *returnobj = NULL, *three =NULL;
@@ -312,19 +312,18 @@ typedef struct{
 
 		FUNC_MESS_BEGIN();
 
-		flag = _pygsl_lite_odeiv2_check_step_jacobian(self, dydt);
-		if(GSL_SUCCESS != PyGSL_ERROR_FLAG(flag)){
-			line = __LINE__ - 2; goto fail;
-		}
-
-		dim = dydt->params.dimension;
-
-		if(dydt == NULL){
+		if(sys == NULL){
 			line = __LINE__ -1;
 			pygsl_lite_error("Type None/NULL not accepted", __FILE__, line, GSL_EINVAL);
 			goto fail;
 		}
 
+		flag = _pygsl_lite_odeiv2_check_step_jacobian(self, &sys->dydt);
+		if(GSL_SUCCESS != PyGSL_ERROR_FLAG(flag)){
+			line = __LINE__ - 2; goto fail;
+		}
+
+		dim = sys->params.dimension;
 
 		y_in_a = PyGSL_vector_check(y_o, dim, PyGSL_DARRAY_CINPUT(3), NULL, NULL);
 		if(y_in_a == NULL){
@@ -369,7 +368,7 @@ typedef struct{
 		}
 
 
-		flag = gsl_odeiv2_step_apply(self, t, h, y, yerr, dydt_in, dydt_out, &dydt->dydt);
+		flag = gsl_odeiv2_step_apply(self, t, h, y, yerr, dydt_in, dydt_out, &sys->dydt);
 		if(GSL_SUCCESS != PyGSL_ERROR_FLAG(flag)){
 			line = __LINE__ - 2; goto fail;
 		}
@@ -618,7 +617,7 @@ typedef struct{
 			line = __LINE__ - 2; goto fail;
 		}
 
-		status = _pygsl_lite_odeiv2_check_step_jacobian(step, sys);
+		status = _pygsl_lite_odeiv2_check_step_jacobian(step, &sys->dydt);
 		if(GSL_SUCCESS != PyGSL_ERROR_FLAG(status)){
 			line = __LINE__ - 2; goto fail;
 		}
@@ -802,7 +801,7 @@ typedef struct{
 		double *scale_abs;
 		PyArrayObject * scale_abs_a = NULL;
 		PyGSL_array_index_t dim = 0;
-		gsl_odeiv2_system * sys = NULL;
+		pygsl_lite_odeiv2_system * sys = NULL;
 		int flag;
 
 		FUNC_MESS_BEGIN();
@@ -823,7 +822,7 @@ typedef struct{
 			goto fail;
 		}
 
-		dim = sys->dimension;
+		dim = sys->dydt.dimension;
 		d = (pygsl_lite_odeiv2_driver *) PyMem_Malloc(sizeof(pygsl_lite_odeiv2_driver));
 		if(d == NULL){
 			goto fail;
@@ -841,7 +840,7 @@ typedef struct{
 		Py_INCREF(d->sys);
 
 		if(scale_abs_o == Py_None){
-			d->driver = gsl_odeiv2_driver_alloc_standard_new(sys, T, hstart, epsabs, epsrel, a_y, a_dydt);
+			d->driver = gsl_odeiv2_driver_alloc_standard_new(&sys->dydt, T, hstart, epsabs, epsrel, a_y, a_dydt);
 			if(d->driver == NULL){
 				goto fail;
 			}
@@ -855,7 +854,7 @@ typedef struct{
 		d->scale = scale_abs_a;
 		scale_abs_a = NULL;
 		scale_abs =  (double *) PyArray_DATA(d->scale);
-		d->driver =  gsl_odeiv2_driver_alloc_scaled_new(sys, T, hstart, epsabs, epsrel, a_y, a_dydt, scale_abs);
+		d->driver =  gsl_odeiv2_driver_alloc_scaled_new(&sys->dydt, T, hstart, epsabs, epsrel, a_y, a_dydt, scale_abs);
 		if(d->driver == NULL){
 			goto fail;
 		}
