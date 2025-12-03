@@ -1,0 +1,11 @@
+prune .gitlab/
+prune .github/
+exclude .gitignore
+
+# exclude all swig pre-generated files from the sdist
+recursive-exclude swig_src *.c *.h *.py
+
+exclude pygsl_lite/_block.py
+exclude pygsl_lite/_callback.py
+exclude pygsl_lite/gslwrap.py
+exclude pygsl_lite/odeiv2.py
