@@ -8,6 +8,7 @@
 #include <gsl/gsl_errno.h>
 #include <pygsl_lite/error_helpers.h>
 #include <pygsl_lite/general_helpers.h>
+#include <typemaps/swig_init_pygsl.h>
 
 static char trigger_doc [] = "Calls pygsl_lite_error with the passed error number";
 static char trigger_gsl_doc [] = 
@@ -255,7 +256,7 @@ DL_EXPORT(void) initerrortest(void)
 	 goto fail;
        }
      }
-     init_pygsl_lite();
+     swig_init_pygsl_lite();
      
      return RETVAL;
 

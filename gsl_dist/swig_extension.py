@@ -10,6 +10,7 @@ import os.path
 import sys
 import re
 import string
+from pathlib import Path
 remove_underscore=re.compile("_*(.*)")
 
 gsl_include_dir = gsl_Location.get_gsl_prefix() + '/include'
@@ -57,6 +58,9 @@ class SWIG_Extension(gsl_Extension):
             target = m.groups()[0]
         if c_dir:
             target = c_dir + "/" + target
+            # ensures c_dir exists
+            Path(c_dir).mkdir(parents=True, exist_ok=True)
+
 
         self._run_swig(sources, swig_dependencies, target, swig_include_dirs, swig_flags, py_dir, c_dir, name)
 

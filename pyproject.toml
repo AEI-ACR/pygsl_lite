@@ -1,6 +1,6 @@
 [build-system]
     requires = [
-        "setuptools",
+        "setuptools>=75", # still 3.8 compatible
         "setuptools_scm[toml]>=3.4.3",
         "wheel",
         "numpy",

@@ -22,6 +22,7 @@
 /* -------------------------------------------------------------------------
    Helper Functions
    ------------------------------------------------------------------------- */
+%include pygsl_compat.i
 %{
 #include <gsl/gsl_errno.h>
 #include <pygsl_lite/utils.h>
@@ -62,12 +63,13 @@
 %typemap( argout) gsl_complex * OUT { 
   PyObject *out = NULL;
   FUNC_MESS_BEGIN();
-  out = PyComplex_FromDoubles((double) $1->dat[0],(double) $1->dat[1]);
+  /* argout typemap */
+  out = PyComplex_FromDoubles(GSL_COMPLEX_P_REAL($1), GSL_COMPLEX_P_IMAG($1));
   if(out == NULL){
     PyErr_SetString(PyExc_TypeError, "Could not convert to complex!\n");
     goto fail;    
   }
-  $result = SWIG_Python_AppendOutput($result, out);
+  $result = PyGSL_SWIG_Python_AppendOutput($result, out);
   FUNC_MESS_END();
 }
 
@@ -88,19 +90,19 @@
 %typemap( argout) gsl_complex OUT { 
   PyObject *out = NULL;
   FUNC_MESS_BEGIN();
-  out = PyComplex_FromDoubles((double) $1.dat[0],(double) $1.dat[1]);
+  out = PyComplex_FromDoubles(GSL_REAL($1), GSL_IMAG($1));
   if(out == NULL){
     PyErr_SetString(PyExc_TypeError, "Could not convert to complex!\n");
     goto fail;    
   }
-  $result = SWIG_Python_AppendOutput($result, out);
+  $result = PyGSL_SWIG_Python_AppendOutput($result, out);
   FUNC_MESS_END();
 }
 
 %typemap( out) gsl_complex  {
   PyObject *out = NULL;
   FUNC_MESS_BEGIN();
-  out = PyComplex_FromDoubles((double) $1.dat[0],(double) $1.dat[1]);
+  out = PyComplex_FromDoubles(GSL_REAL($1), GSL_IMAG($1));
   if(out == NULL){
     PyErr_SetString(PyExc_TypeError, "Could not convert to complex!\n");
     goto fail;    

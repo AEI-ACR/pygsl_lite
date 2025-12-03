@@ -29,6 +29,7 @@
 /*   Helper Functions                                                        */
 /* ------------------------------------------------------------------------- */
 /* ------------------------------------------------------------------------- */
+%include pygsl_compat.i
 %{
 #include <pygsl_lite/utils.h>
 #include <pygsl_lite/block_helpers.h>
@@ -111,7 +112,7 @@
  */
 %typemap( argout) gsl_vector * INOUT {
      assert(_PyVector$argnum != NULL);
-     $result = SWIG_Python_AppendOutput($result,  PyGSL_array_return(_PyVector$argnum));
+     $result = PyGSL_SWIG_Python_AppendOutput($result,  PyGSL_array_return(_PyVector$argnum));
      _PyVector$argnum = NULL;
      FUNC_MESS_END();
 }
@@ -179,7 +180,7 @@
  */
 %typemap( argout) gsl_matrix * INOUT {
      assert((PyObject *) _PyMatrix$argnum != NULL);
-     $result = SWIG_Python_AppendOutput($result,  PyGSL_array_return(_PyMatrix$argnum));
+     $result = PyGSL_SWIG_Python_AppendOutput($result,  PyGSL_array_return(_PyMatrix$argnum));
      _PyMatrix$argnum = NULL;
      FUNC_MESS_END();
 }

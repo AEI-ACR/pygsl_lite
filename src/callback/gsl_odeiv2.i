@@ -12,10 +12,11 @@
 "Wrapper for the ODEIV2 module"
 %enddef
 
+%include swig_init_pygsl.h
 %module(docstring=ODEIV2DOCSTRING)odeiv2
 %feature ("autodoc", "3");
 %init{
-  init_pygsl_lite();
+  swig_init_pygsl_lite();
 }
 
 %{
@@ -299,7 +300,7 @@ typedef struct{
 	*/
 
 	PyObject *apply(double t, double h, PyObject * y_o, PyObject *dydt_in_o, PyObject *dydt_out_o,
-			pygsl_lite_odeiv2_system * sys)
+			pygsl_lite_odeiv2_system * dydt)
 	{
 
 		PyObject *returnobj = NULL, *three =NULL;
@@ -312,18 +313,19 @@ typedef struct{
 
 		FUNC_MESS_BEGIN();
 
-		if(sys == NULL){
+		flag = _pygsl_lite_odeiv2_check_step_jacobian(self, &dydt->dydt);
+		if(GSL_SUCCESS != PyGSL_ERROR_FLAG(flag)){
+			line = __LINE__ - 2; goto fail;
+		}
+
+		dim = dydt->params.dimension;
+
+		if(dydt == NULL){
 			line = __LINE__ -1;
 			pygsl_lite_error("Type None/NULL not accepted", __FILE__, line, GSL_EINVAL);
 			goto fail;
 		}
 
-		flag = _pygsl_lite_odeiv2_check_step_jacobian(self, &sys->dydt);
-		if(GSL_SUCCESS != PyGSL_ERROR_FLAG(flag)){
-			line = __LINE__ - 2; goto fail;
-		}
-
-		dim = sys->params.dimension;
 
 		y_in_a = PyGSL_vector_check(y_o, dim, PyGSL_DARRAY_CINPUT(3), NULL, NULL);
 		if(y_in_a == NULL){
@@ -368,7 +370,7 @@ typedef struct{
 		}
 
 
-		flag = gsl_odeiv2_step_apply(self, t, h, y, yerr, dydt_in, dydt_out, &sys->dydt);
+		flag = gsl_odeiv2_step_apply(self, t, h, y, yerr, dydt_in, dydt_out, &dydt->dydt);
 		if(GSL_SUCCESS != PyGSL_ERROR_FLAG(flag)){
 			line = __LINE__ - 2; goto fail;
 		}

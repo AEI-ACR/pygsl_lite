@@ -1,26 +1,31 @@
 /* -*- C -*- */
 /**
  * author: Pierre Schnizer
+ *
+ * Date: 2003, 2025
  */
 %module _callback
-
+%include pygsl_compat.i
 %include typemaps.i
 %include constraints.i
 %include gsl_function_typemaps.i
 %include gsl_error_typemap.i
-
+%include swig_init_pygsl.h
 
 %include gsl_block_typemaps.i
 %{
 #include <pygsl_lite/error_helpers.h>
+#include <pygsl_lite/utils.h>
+#include <typemaps/swig_init_pygsl.h>
 #include "function_helpers.c"
 #include "chars.c"
 %}
 
+#warning "defining size_t"
 typedef unsigned int size_t;
 %init %{
   /* To use the numeric extension */
-  init_pygsl_lite();
+  swig_init_pygsl_lite();
 %}
 
 /* add functions to allocate and free the memory stored by gsl_function */
@@ -57,11 +62,7 @@ typedef unsigned int size_t;
  */
 
 
-
 %typemap (out) int = gsl_error_flag;
 %include gsl_roots.i
 %include gsl_multiroots.i
 %include gsl_odeiv.i
- /*
-  * %include gsl_multifit.i
-  */
