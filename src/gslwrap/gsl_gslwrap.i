@@ -1,20 +1,26 @@
 /* -*- C -*- */
 /*
  * Author: Fabian Jakobs
- * Modified by : Pierre Schnizer January 2003
+ * Modified by : Pierre Schnizer January 2003, 2025
  *
  * Changes:
  *   22. May 2003: Changed to use the pygsl_lite library. Warning! Do not import
  * Numeric/arrayobject.h before pygsl_lite_block_helpers.h.  pygsl_lite_block_helpers.h
  * defines the PY_ARRAY_UNIQUE_SYMBOL.
+ *
+ * 2025: swig 4.3 compatible
  */
 %module gslwrap
 %feature ("autodoc", "3");
+%include pygsl_compat.i
+%include swig_init_pygsl.h
 
 %{
 #include <gsl/gsl_types.h>
 #include <stdio.h>
 #include <pygsl_lite/error_helpers.h>
+#include <pygsl_lite/utils.h>
+#include <typemaps/swig_init_pygsl.h>
 
 static PyObject *module = NULL;
 
@@ -25,7 +31,7 @@ static const char _pygsl_lite_gsl_unimpl_feature[] =  "Feature not implemented i
 %}
 
 %init {
-  init_pygsl_lite();
+  swig_init_pygsl_lite();
 }
 
 typedef int size_t;
@@ -38,10 +44,8 @@ typedef int size_t;
 
 
 %immutable;
-%include math.i
+%include gsl_math.i
 %typemap (out) int = gsl_error_flag_drop;
-
-
 %include interpolation.i
 
 

@@ -18,6 +18,8 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
+          - "3.13"
+          - "3.14"
 
     steps:
       - name: Checkout Code
@@ -30,7 +32,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt-get update && sudo apt-get install -y libarchive-dev
+          sudo apt-get update && sudo apt-get install -y libarchive-dev libgsl-dev
 
       - name: Install tox/wheel/setuptools
         run: |
@@ -52,17 +54,17 @@ jobs:
       - name: Run tests from tox
         timeout-minutes: 30
         run: |
-          # disables the GDrive tests
           # runs tox
           tox -l
           tox -e ${{ matrix.python_version }}
 
       - name: Upload unit test results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Tox test results (${{ matrix.python_version }})
           path: ${{ github.workspace }}/.tox/**/tmp/*.xml
+          include-hidden-files: true
 
   publish-test-results:
     name: 'publish unit tests results'
@@ -73,7 +75,7 @@ jobs:
 
     steps:
       - name: Download Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 

@@ -7,6 +7,15 @@
 #define PyGSL_API_INTERN_H 1
 
 #include <Python.h>
+#include <pygsl_lite/numpy_api_version.h>
+/* todo: how to handle global config */
+#include <gsl/gsl_errno.h>
+// #include <pygsl/pygsl_config.h>
+// #define PyGSL_SET_GSL_ERROR_HANDLER
+#define GSL_DISABLE_DEPRECATED
+// #define DEBUG 0
+/* end pygsl config */
+
 #include <pygsl_lite/transition.h>
 #include <pygsl_lite/capsuletrunk.h>
 
@@ -20,9 +29,21 @@
 # define __END_DECLS /* empty */
 #endif
 
+#ifndef PyGSL_PY3K
+#error "Currently only python 3.0"
+#endif
+
+#ifndef PyGSL_SET_GSL_ERROR_HANDLER
+#define PyGSL_SET_GSL_ERROR_HANDLER 1
+#endif
+
+#ifndef GSL_DISABLE_DEPRECATED
+#define GSL_DISABLE_DEPRECATED
+#endif
+
+
 __BEGIN_DECLS
 
-#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 /*
 #define PyGSL_API_UNIQUE_SYMBOL PyGSL_API
 */
@@ -33,7 +54,7 @@ __BEGIN_DECLS
 #define PyGSL_API PyGSL_API_UNIQUE_SYMBOL
 #endif
 
-/* C API address pointer */ 
+/* C API address pointer */
 #if defined(PyGSL_NO_IMPORT_API)
 extern void **PyGSL_API;
 #else
@@ -71,7 +92,7 @@ static void **PyGSL_API;
 #define PyGSL_pylong_to_ulong_NUM                       7
 #define PyGSL_pylong_to_uint_NUM                        8
 #define PyGSL_check_python_return_NUM                   9
-#define PyGSL_clear_name_NUM                           10 
+#define PyGSL_clear_name_NUM                           10
 
 #define PyGSL_PyComplex_to_gsl_complex_NUM             11
 #define PyGSL_PyComplex_to_gsl_complex_float_NUM       12
@@ -84,7 +105,7 @@ static void **PyGSL_API;
 
 #define PyGSL_PyArray_prepare_gsl_vector_view_NUM      17
 #define PyGSL_PyArray_prepare_gsl_matrix_view_NUM      18
-#define PyGSL_PyArray_generate_gsl_vector_view_NUM     19 
+#define PyGSL_PyArray_generate_gsl_vector_view_NUM     19
 #define PyGSL_PyArray_generate_gsl_matrix_view_NUM     20
 #define PyGSL_copy_pyarray_to_gslvector_NUM            21
 #define PyGSL_copy_pyarray_to_gslmatrix_NUM            22
@@ -95,7 +116,7 @@ static void **PyGSL_API;
 
 /* rng object */
 #define PyGSL_RNG_ObjectType_NUM                       26
-#define PyGSL_gsl_rng_from_pyobject_NUM                27 
+#define PyGSL_gsl_rng_from_pyobject_NUM                27
 #define PyGSL_function_wrap_helper_NUM                 28
 
 /* solver type */
@@ -137,21 +158,21 @@ static void **PyGSL_API;
 #endif /* _PyGSL_API_MODULE */
 
 /*
- * Entries in the API. 
- * WARNING: This is the length of the entries. 
+ * Entries in the API.
+ * WARNING: This is the length of the entries.
  * All Entries defined here with _NUM must be smaller than this number!!
  */
 
 
-/* 
- * I define the error handler here as the api import shall also set the error 
- * handler. The error handler must be set in each module speratley as on some 
+/*
+ * I define the error handler here as the api import shall also set the error
+ * handler. The error handler must be set in each module speratley as on some
  * platforms GSL is linked statically, thus each module has its seperate error
  * gsl handler.
- * And I think the other platforms can spare these extra cycles, so I do that 
+ * And I think the other platforms can spare these extra cycles, so I do that
  * on all platforms.
  */
-PyGSL_API_EXTERN void 
+PyGSL_API_EXTERN void
 PyGSL_module_error_handler(const char *reason, /* name of function */
 			   const char *file,   /* from CPP */
 			   int line,           /* from CPP */
@@ -161,7 +182,7 @@ PyGSL_module_error_handler(const char *reason, /* name of function */
 /*
  * Used to inform the module of the approbriate number
  */
-PyGSL_API_EXTERN int 
+PyGSL_API_EXTERN int
 PyGSL_register_debug_flag(int *, const char * module_name);
 
 #ifndef _PyGSL_API_MODULE
@@ -171,7 +192,7 @@ PyGSL_register_debug_flag(int *, const char * module_name);
  (*(int (*)(int *, const char *)) PyGSL_API[PyGSL_register_debug_flag_NUM])
 #endif  /* _PyGSL_API_MODULE */
 
-#if DEBUG == 1 
+#if DEBUG == 1
 static int pygsl_lite_debug_level = 0;
 #define PyGSL_DEBUG_LEVEL() (pygsl_lite_debug_level)
 #define PyGSL_init_debug()  (PyGSL_register_debug_flag(&pygsl_lite_debug_level, __FILE__))
@@ -186,7 +207,7 @@ static int pygsl_lite_debug_level = 0;
 /* #define _PyGSL_MODULE_ERROR_HANDLER_OLD_STYLE 1 */
 #define _PyGSL_MODULE_ERROR_HANDLER_FUNC \
     (*(void (*)(const char *, const char *, int, int))PyGSL_API[PyGSL_module_error_handler_NUM])
-#ifdef PyGSL_SET_GSL_ERROR_HANDLER 
+#ifdef PyGSL_SET_GSL_ERROR_HANDLER
 #define PyGSL_SET_ERROR_HANDLER() \
         gsl_set_error_handler(_PyGSL_MODULE_ERROR_HANDLER_FUNC)
 #define PyGSL_CHECK_ERROR_HANDLER() \
@@ -212,30 +233,68 @@ static int pygsl_lite_debug_level = 0;
 #define PyGSL_ERROR_NULL(reason, gsl_errno) PyGSL_ERROR_VAL((reason), (gsl_errno), NULL)
 
 static const char pygsl_lite_api_name[] = "pygsl_lite_api";
-#define init_pygsl_lite()\
-{ \
-   PyObject *pygsl_lite = NULL, *c_api = NULL, *md = NULL; \
-   unsigned long version;\
-   if ( \
-      (pygsl_lite = PyImport_ImportModule("pygsl_lite.init"))    != NULL && \
-      (md = PyModule_GetDict(pygsl_lite))                   != NULL && \
-      (c_api = PyDict_GetItemString(md, "_PYGSL_API")) != NULL && \
-      (PyCapsule_CheckExact(c_api))                                    \
-     ) { \
-     PyGSL_API = (void **)PyCapsule_GetPointer(c_api, pygsl_lite_api_name);		    \
-     version = (unsigned long) PyGSL_API[PyGSL_api_version_NUM];		\
-         if (PyGSL_API_VERSION != version ){ \
-            fprintf(stderr, "Compiled for PyGSL_API_VERSION 0x%lx but found 0x%lx! In File %s\n", PyGSL_API_VERSION, version, __FILE__); \
-         } \
-         PyGSL_SET_ERROR_HANDLER(); \
-         PyGSL_CHECK_ERROR_HANDLER(); \
-       if((PyGSL_init_debug()) != GSL_SUCCESS){ \
-         fprintf(stderr, "Failed to register debug switch for file %s\n", __FILE__);} \
-   } else { \
-        PyGSL_API = NULL; \
-        fprintf(stderr, "Import of pygsl_lite.init Failed!!! File %s\n", __FILE__);\
-   } \
-} 
+
+#ifndef _PyGSL_API_MODULE
+
+/**
+ * @todo: pass filename in which the marco is evaluated?
+ */
+static int _init_pygsl_lite(const char* filename, const char * func_name, const int lineno)
+{
+   PyObject *pygsl_lite = NULL, *c_api = NULL, *md = NULL;
+   unsigned long version;
+
+   if(! (pygsl_lite = PyImport_ImportModule("pygsl_lite.init")) ){
+       fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.init: failed to import module\n",  filename,  lineno, func_name);
+       return -1;
+   }
+   if (!  (md = PyModule_GetDict(pygsl_lite)) ){
+       fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.init: failed to get module dictionary\n",  filename,  lineno, func_name);
+       return -1;
+   }
+   if (! (c_api = PyDict_GetItemString(md, "_PYGSL_API")) ){
+       fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.init: failed to get c_api object\n",  filename,  lineno, func_name);
+       return -1;
+   }
+   if( ! PyCapsule_CheckExact(c_api) ) {
+       fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.init: c_api object is not a python capsule \n",  filename,  lineno, func_name);
+       return -1;
+   }
+
+   PyGSL_API = (void **)PyCapsule_GetPointer(c_api, pygsl_lite_api_name);
+   if(!PyGSL_API) {
+       fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.init: c_api capsule contained NULL pointer \n",  filename,  lineno, func_name);
+       return -1;
+   }
+   version = (unsigned long) PyGSL_API[PyGSL_api_version_NUM];
+   if (PyGSL_API_VERSION != version ){
+       fprintf(stderr, "%s@%d pygsl_lite: init compiled for PyGSL_API_VERSION 0x%lx but found 0x%lx!\n", filename, lineno, PyGSL_API_VERSION, version);
+   }
+   PyGSL_SET_ERROR_HANDLER();
+   PyGSL_CHECK_ERROR_HANDLER();
+   if((PyGSL_init_debug()) != GSL_SUCCESS) {
+       PyGSL_API = NULL;
+       fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.init: failed to register debug switch\n",  filename,  lineno, func_name);
+   }
+   return 0;
+}
+
+
+#define init_pygsl_lite1(ret) { \
+if (_init_pygsl_lite(__FILE__, __FUNCTION__, __LINE__) < 0) { \
+    PyErr_Print(); \
+    PyErr_SetString( \
+        PyExc_ImportError, \
+        "pygsl_lite.init failed to import" \
+    ); \
+    return ret; \
+  } \
+}
+
+#define init_pygsl_lite() init_pygsl_lite1(NULL)
+#endif  /* _PyGSL_API_MODULE */
+
+
 
 __END_DECLS
 

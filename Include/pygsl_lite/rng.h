@@ -3,7 +3,7 @@
 /*
  * Author: Pierre Schnizer
  *
- * $Id: 
+ * $Id:
  */
 #include <pygsl_lite/intern.h>
 #include <gsl/gsl_rng.h>
@@ -27,7 +27,7 @@ typedef struct {
 
 
 
-/* 
+/*
  * Get a gsl_rng object from a PyGSL rng wrapper.
  */
 PyGSL_API_EXTERN gsl_rng *
@@ -43,27 +43,50 @@ PyGSL_gsl_rng_from_pyobject(PyObject * object);
 static const char _pygsl_lite_rng_api_cap_name[] = "_pygsl_lite_rng_api"; 
 #define _PyGSL_RNG_API_CAP _pygsl_lite_rng_api_cap_name
 
-#define import_pygsl_lite_rng() \
-{ \
-   PyObject *pygsl_lite = NULL, *c_api = NULL, *md = NULL; \
-   if ( \
-      (pygsl_lite = PyImport_ImportModule("pygsl_lite.rng"))         != NULL && \
-      (md = PyModule_GetDict(pygsl_lite))                       != NULL && \
-      (c_api = PyDict_GetItemString(md, "_PYGSL_RNG_API")) != NULL && \
-      (PyCapsule_CheckExact(c_api))				      \
-     ) { \
-     PyGSL_API = (void **)PyCapsule_GetPointer(c_api,_PyGSL_RNG_API_CAP); \
-   } else { \
-        PyGSL_API = NULL; \
-   } \
-   /* fprintf(stderr, "PyGSL_API points to %p\n", (void *) PyGSL_API); */ \
+static int _import_pygsl_lite_rng(const char * filename, const char *func_name, const int lineno)
+{
+    PyObject *pygsl_lite = NULL, *c_api = NULL, *md = NULL;
+    unsigned long version;
+
+    if(! (pygsl_lite = PyImport_ImportModule("pygsl_lite.rng")) ){
+	fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.rng: failed to import module\n",  filename,  lineno, func_name);
+	return -1;
+    }
+    if (!  (md = PyModule_GetDict(pygsl_lite)) ){
+	fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.rng: failed to get module dictionary\n",  filename,  lineno, func_name);
+	return -1;
+    }
+    if (! (c_api = PyDict_GetItemString(md, "_PYGSL_RNG_API")) ){
+	fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.rng: failed to get c_api object\n",  filename,  lineno, func_name);
+	return -1;
+    }
+    if( ! PyCapsule_CheckExact(c_api) ) {
+	fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.rng: c_api object is not a python capsule \n",  filename,  lineno, func_name);
+	return -1;
+    }
+
+    PyGSL_API = (void **)PyCapsule_GetPointer(c_api, _pygsl_lite_rng_api_cap_name);
+    if(!PyGSL_API) {
+	fprintf(stderr, "FAILED %s:@%d %s import of pygsl_lite.rng: c_api capsule contained NULL pointer \n",  filename,  lineno, func_name);
+	return -1;
+    }
+    return 0;
 }
+
+#define import_pygsl_lite_rng1(ret) { \
+if (_import_pygsl_lite_rng(__FILE__, __FUNCTION__, __LINE__) < 0) { \
+    PyErr_Print(); \
+    PyErr_SetString( \
+        PyExc_ImportError, \
+        "pygsl_lite.rng failed to import" \
+    ); \
+    return ret; \
+  } \
+}
+
+
+#define import_pygsl_lite_rng() import_pygsl_lite_rng1(NULL)
 
 __END_DECLS
 
 #endif  /* PyGSL_RNG_H */
-
-
-
-
-

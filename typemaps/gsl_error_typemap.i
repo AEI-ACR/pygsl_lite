@@ -3,6 +3,7 @@
  * Author: Pierre Schnizer
  * Date  : December 2002
  */
+%include pygsl_compat.i
 %{   
 #include <stddef.h>
 #include <pygsl_lite/utils.h>
@@ -72,6 +73,9 @@ PyObject *pygsl_lite_module_for_error_treatment = NULL;
  * 17. February 2010. Check if it is not SUCCESS. If an error is found
  * it returns the flag. This should have an impact on a lot of functions
  */
+%{
+    typedef size_t pygsl_lite_size_t_or_error;
+%}
 %typemap(out) gsl_error_flag_drop {
      DEBUG_MESS(5, "dropping error flag %ld", (long) $1);
      if(GSL_SUCCESS != PyGSL_ERROR_FLAG($1)){
@@ -81,4 +85,12 @@ PyObject *pygsl_lite_module_for_error_treatment = NULL;
      }
      Py_INCREF(Py_None);
      $result = Py_None;
+}
+
+%typemap(out) pygsl_lite_size_t_or_error {
+     DEBUG_MESS(5, "returning size_t %lu", (unsigned long) $1);
+     if(PyErr_Occurred()){
+	 goto fail;
+     }
+     $result = PyLong_FromSize_t($1);
 }
