@@ -1,6 +1,11 @@
 .tox
 build
-_version.py
+dist
 pygsl_lite.egg-info
 __pycache__
-dist
+swig_src
+pygsl_lite/_version.py
+pygsl_lite/_block.py
+pygsl_lite/_callback.py
+pygsl_lite/gslwrap.py
+pygsl_lite/odeiv2.py
