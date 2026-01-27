@@ -4,6 +4,7 @@
 #include <gsl/gsl_rng.h>
 #include <pygsl_lite/rng.h>
 #include <pygsl_lite/rng_helpers.h>
+#include <swig_init_pygsl.h>
 %}
 
 %include swig_init_pygsl.h

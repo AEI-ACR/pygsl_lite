@@ -1020,4 +1020,3 @@ PyGSL_convert_to_gsl_monte_function(PyObject * object)
      FUNC_MESS_END();
      return f;
 }
-
