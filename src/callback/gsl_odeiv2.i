@@ -803,7 +803,7 @@ typedef struct{
 		double *scale_abs;
 		PyArrayObject * scale_abs_a = NULL;
 		PyGSL_array_index_t dim = 0;
-		pygsl_lite_odeiv2_system * sys = NULL;
+		gsl_odeiv2_system * sys = NULL;
 		int flag;
 
 		FUNC_MESS_BEGIN();
@@ -824,7 +824,7 @@ typedef struct{
 			goto fail;
 		}
 
-		dim = sys->dydt.dimension;
+		dim = sys->dimension;
 		d = (pygsl_lite_odeiv2_driver *) PyMem_Malloc(sizeof(pygsl_lite_odeiv2_driver));
 		if(d == NULL){
 			goto fail;
@@ -842,7 +842,7 @@ typedef struct{
 		Py_INCREF(d->sys);
 
 		if(scale_abs_o == Py_None){
-			d->driver = gsl_odeiv2_driver_alloc_standard_new(&sys->dydt, T, hstart, epsabs, epsrel, a_y, a_dydt);
+			d->driver = gsl_odeiv2_driver_alloc_standard_new(sys, T, hstart, epsabs, epsrel, a_y, a_dydt);
 			if(d->driver == NULL){
 				goto fail;
 			}
@@ -856,7 +856,7 @@ typedef struct{
 		d->scale = scale_abs_a;
 		scale_abs_a = NULL;
 		scale_abs =  (double *) PyArray_DATA(d->scale);
-		d->driver =  gsl_odeiv2_driver_alloc_scaled_new(&sys->dydt, T, hstart, epsabs, epsrel, a_y, a_dydt, scale_abs);
+		d->driver =  gsl_odeiv2_driver_alloc_scaled_new(sys, T, hstart, epsabs, epsrel, a_y, a_dydt, scale_abs);
 		if(d->driver == NULL){
 			goto fail;
 		}

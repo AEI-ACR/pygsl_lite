@@ -11,7 +11,7 @@
 #include <typemaps/swig_init_pygsl.h>
 
 static char trigger_doc [] = "Calls pygsl_lite_error with the passed error number";
-static char trigger_gsl_doc [] = 
+static char trigger_gsl_doc [] =
 "Calls gsl_error with the passed error number. This function allows testing if\n\
 the gsl_error is off or not.";
 
@@ -48,11 +48,11 @@ trigger_gsl(PyObject *self, PyObject *args)
 	 *
 	 * 25. October 2008
 	 * set the internal gsl_error_handler to off
-	 * 
-	 */ 
+	 *
+	 */
 	gsl_error("Just a test to see what gsl is doing!",
 		  __FILE__, __LINE__, t_gsl_errno);
-	if (PyGSL_ERROR_FLAG(t_gsl_errno) != GSL_SUCCESS){	
+	if (PyGSL_ERROR_FLAG(t_gsl_errno) != GSL_SUCCESS){
 		FUNC_MESS_FAILED();
 		return NULL;
 	}
@@ -80,7 +80,7 @@ select_error_handler(PyObject *self, PyObject *args)
 		line = __LINE__ -1;
 		goto fail;
 	}
-	
+
 	switch(val){
 	case  PyGSL_ERROR_HANDLER_OFF:
 		gsl_set_error_handler_off();
@@ -96,7 +96,7 @@ select_error_handler(PyObject *self, PyObject *args)
 		DEBUG_MESS(2, "Do not which error handler to select for value %d", val);
 		pygsl_lite_error("Unknown error handler to be selected", __FILE__, line, status);
 		goto fail;
-		
+
 
 	}
 
@@ -104,7 +104,7 @@ select_error_handler(PyObject *self, PyObject *args)
 		line = __LINE__ -1;
 		goto fail;
 	}
-	
+
 	FUNC_MESS_END();
 	Py_INCREF(Py_None);
 	return Py_None;
@@ -125,9 +125,9 @@ check_installed_error_handler(PyObject *self, PyObject *args)
 	FUNC_MESS_BEGIN();
 
 	check = gsl_set_error_handler(NULL);
-	gsl_set_error_handler(check);	
+	gsl_set_error_handler(check);
 
-	gsl_set_error_handler_off();	
+	gsl_set_error_handler_off();
 	check_off = gsl_set_error_handler(NULL);
 
 	if(check == check_off){
@@ -137,12 +137,12 @@ check_installed_error_handler(PyObject *self, PyObject *args)
 	}else{
 	  val = PyGSL_ERROR_HANDLER_UNKNOWN;
 	}
-	DEBUG_MESS(2, "Error handler = %p. module = %p (%s) off = %p (%s)", 
+	DEBUG_MESS(2, "Error handler = %p. module = %p (%s) off = %p (%s)",
 		   (void *) check,
 		   (void *) module_f,  (check == module_f)  ? "true" : "false",
 		   (void *) check_off, (check == check_off) ? "true" : "false");
 
-	gsl_set_error_handler(check);	
+	gsl_set_error_handler(check);
 
 	result = PyLong_FromLong((long) val);
 	if(result == NULL){
@@ -172,11 +172,11 @@ trigger(PyObject *self, PyObject *args)
 	 *
 	 * 25. October 2008
 	 * set the internal gsl_error_handler to off
-	 * 
-	 */ 
+	 *
+	 */
 	pygsl_lite_error("Just a test to see what pygsl_lite is doing!",
 		  __FILE__, __LINE__, gsl_errno);
-	if (PyGSL_ERROR_FLAG(gsl_errno) != GSL_SUCCESS){	
+	if (PyGSL_ERROR_FLAG(gsl_errno) != GSL_SUCCESS){
 		FUNC_MESS_FAILED();
 		return NULL;
 	}
@@ -207,7 +207,7 @@ static struct PyModuleDef moduledef = {
         NULL,
         NULL
 };
-#endif 
+#endif
 
 
 #ifdef __cplusplus
@@ -215,15 +215,31 @@ extern "C"
 #endif
 
 #ifdef PyGSL_PY3K
-PyObject *PyInit_errortest(void)
+PyMODINIT_FUNC
+PyInit_errortest(void)
 #define RETVAL m
 #else /* PyGSL_PY3K */
 DL_EXPORT(void) initerrortest(void)
 #define RETVAL
 #endif /* PyGSL_PY3K */
 {
-  PyObject  *m=NULL;
-     
+    /*
+     * DEBUG 1 allows switching debug messages on and off at run time
+     * this switch only works after pygsl init has been launched as
+     * the actual value is stored in the variable dynamically, which
+     * defaults to off.
+     *
+     * uncomment the following lines so that the debug level is set
+     * to a different default until pygsl init has happened
+     */
+    /*
+#if DEBUG ==1
+     pygsl_debug_level=10;
+#endif
+    */
+    FUNC_MESS_BEGIN();
+    PyObject  *m=NULL;
+
 #ifdef PyGSL_PY3K
      m = PyModule_Create(&moduledef);
 #else /* PyGSL_PY3K */
@@ -232,7 +248,7 @@ DL_EXPORT(void) initerrortest(void)
 #endif /* PyGSL_PY3K */
      if(m == NULL)
        return RETVAL;
-     
+
      assert(m);
      module = m;
 
@@ -243,7 +259,7 @@ DL_EXPORT(void) initerrortest(void)
        val = PyGSL_SET_GSL_ERROR_HANDLER;
        val = (val == 0) ? 1 : val;
 #endif /* PyGSL_SET_GSL_ERROR_HANDLER */
-       
+
        dict = PyModule_GetDict(m);
        if(dict == NULL){
 	 goto fail;
@@ -251,22 +267,24 @@ DL_EXPORT(void) initerrortest(void)
        item = PyLong_FromLong(val);
        if(item == NULL){
 	 goto fail;
-       }       
+       }
        if(PyDict_SetItemString(dict, "set_gsl_error_handler_val", item) == -1){
 	 goto fail;
        }
      }
-     swig_init_pygsl_lite();
-     
+     DEBUG_MESS(2, "module error test at %p: before init_pygsl_lite", (void *)m);
+     init_pygsl_lite();
+     FUNC_MESS_END();
+
      return RETVAL;
 
  fail:
-     
+    FUNC_MESS_FAILED();
+
 #ifdef PyGSL_PY3K
      return NULL;
-#else 
+#else
      /* void function no return value*/
      return;
-#endif 
+#endif
 }
-
