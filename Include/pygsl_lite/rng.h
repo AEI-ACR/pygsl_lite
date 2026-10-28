@@ -40,7 +40,7 @@ PyGSL_gsl_rng_from_pyobject(PyObject * object);
 #define PyGSL_RNG_Check(ob) \
    (Py_TYPE(ob) == (PyTypeObject *)PyGSL_API[PyGSL_RNG_ObjectType_NUM])
 
-static const char _pygsl_lite_rng_api_cap_name[] = "_pygsl_lite_rng_api"; 
+static const char _pygsl_lite_rng_api_cap_name[] = "_pygsl_lite_rng_api";
 #define _PyGSL_RNG_API_CAP _pygsl_lite_rng_api_cap_name
 
 static int _import_pygsl_lite_rng(const char * filename, const char *func_name, const int lineno)

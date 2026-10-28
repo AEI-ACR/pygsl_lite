@@ -2,6 +2,8 @@
 """Currently no control when SWIG will be run.
 """
 from gsl_Extension import gsl_Extension, gsl_Location
+import setuptools
+import shutil
 from distutils.util import spawn
 from distutils.dep_util import newer_group
 from distutils.file_util import copy_file
@@ -21,6 +23,23 @@ swig_flags_default = ['-python', '-keyword', '-shadow', '-Itypemaps',
               '-I' + gsl_include_dir]
 swig_flags = ['-python', '-builtin', '-modern', '-keyword', '-O', '-Itypemaps', #'-cpperraswarn',
               '-I' + gsl_include_dir]
+
+
+# Detect setuptools major version
+use_84 = setuptools.__version__.startswith('84')
+
+
+def spawn_wrapper(cmd, search_path, verbose):
+    if use_84:
+        # verbose is ignored
+        # search_path is emulated as in older distutils
+        if search_path:
+            executable = shutil.which(cmd[0])
+        if executable is not None:
+            cmd[0] = executable
+        spawn(cmd)
+    else:
+        spawn(cmd, search_path, verbose)
 
 
 class SWIG_Extension(gsl_Extension):
@@ -91,7 +110,7 @@ class SWIG_Extension(gsl_Extension):
             cmd = [gsl_Location.get_swig(),] + t_swig_flags + includes
             cmd.extend(['-o', target] + sources)
             sys.stderr.write(" ".join(cmd) + "\n")
-            spawn(cmd, 1, 1)
+            spawn_wrapper(cmd, True, True)
             src = f"{name}.py"
             if c_dir:
                 src = os.path.join(c_dir,src)

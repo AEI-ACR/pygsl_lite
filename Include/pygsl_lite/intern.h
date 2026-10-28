@@ -75,7 +75,7 @@ static void **PyGSL_API;
 
 
 /*
- * The version of the API. Allows to check if the used 
+ * The version of the API. Allows to check if the used
  * API is correct.
  */
 #define PyGSL_API_VERSION       ((unsigned long) ( 0x3))
@@ -214,9 +214,9 @@ static int pygsl_lite_debug_level = 0;
     if(PyGSL_SET_ERROR_HANDLER() != _PyGSL_MODULE_ERROR_HANDLER_FUNC){\
         fprintf(stderr, "Installation of error handler failed! In File %s\n", __FILE__);\
     }
-#else  /* PyGSL_SET_GSL_ERROR_HANDLER */ 
+#else  /* PyGSL_SET_GSL_ERROR_HANDLER */
 #define PyGSL_SET_ERROR_HANDLER() gsl_set_error_handler_off()
-#define PyGSL_CHECK_ERROR_HANDLER() 
+#define PyGSL_CHECK_ERROR_HANDLER()
 #endif /* PyGSL_SET_GSL_ERROR_HANDLER */
 
 #define pygsl_lite_error(reason, file, line, pygsl_lite_errorno)  \
